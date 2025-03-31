@@ -8,6 +8,8 @@ import { AuthenticatedRequest } from '../middleware/authenticate';
 export const createUser = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
+  console.log(`POST request to /users`);
+
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required.' });
   }
@@ -39,6 +41,8 @@ export const createUser = async (req: Request, res: Response) => {
 // login
 export const loginUser = async (req: Request, res: Response) => {
   const { username, password } = req.body;
+
+  console.log(`POST request to /login`);
 
   if (!username || !password) {
     return res.status(400).json({ error: 'username and password are required' });
@@ -78,6 +82,8 @@ export const loginUser = async (req: Request, res: Response) => {
 // user info
 export const getMe = async (req: AuthenticatedRequest, res: Response) => {
   const user_id = req.user?.user_id;
+
+  console.log(`GET request to /me`);
 
   try {
     const result = await pool.query('SELECT user_id, username FROM users WHERE user_id = $1', [

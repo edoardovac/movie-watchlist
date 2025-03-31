@@ -7,6 +7,8 @@ export const createWatchlist = async (req: AuthenticatedRequest, res: Response) 
   const user_id = req.user?.user_id;
   const { name, notes } = req.body;
 
+  console.log(`POST request to /watchlists`);
+
   if (!user_id || !name) {
     return res.status(400).json({ error: 'user_id and name are required' });
   }
@@ -26,6 +28,8 @@ export const createWatchlist = async (req: AuthenticatedRequest, res: Response) 
 // list all watchlists created by specific user
 export const watchlistsByUser = async (req: AuthenticatedRequest, res: Response) => {
   const user_id = req.user?.user_id;
+
+  console.log(`GET request to /watchlists/me`);
 
   if (!user_id) {
     return res.status(400).json({ error: 'Invalid user id' });
@@ -48,6 +52,8 @@ export const modifyWatchlist = async (req: AuthenticatedRequest, res: Response) 
   const user_id = req.user?.user_id;
   const watchlist_id = parseInt(req.params.id, 10);
   const { name, notes } = req.body;
+
+  console.log(`PUT request to /watchlists/${watchlist_id}`);
 
   if (!user_id || isNaN(watchlist_id)) {
     return res.status(400).json({ error: 'Invalid user or watchlist id' });
@@ -97,6 +103,8 @@ export const deleteWatchlist = async (req: AuthenticatedRequest, res: Response) 
   const user_id = req.user?.user_id;
   const watchlist_id = parseInt(req.params.id, 10);
 
+  console.log(`DELETE request to /watchlists/${watchlist_id}`);
+
   if (!user_id || isNaN(watchlist_id)) {
     return res.status(400).json({ error: 'Invalid user or watchlist id' });
   }
@@ -125,6 +133,8 @@ export const deleteWatchlist = async (req: AuthenticatedRequest, res: Response) 
 
 // see all watchlist
 export const getWatchlists = async (req: Request, res: Response) => {
+  console.log(`GET request to /watchlists`);
+
   try {
     const result = await pool.query(
       'SELECT watchlist_id, user_id, name, notes FROM watchlists ORDER BY watchlist_id DESC'

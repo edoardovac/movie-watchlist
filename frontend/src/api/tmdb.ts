@@ -1,20 +1,24 @@
-const TMDB_API_URL = "https://api.themoviedb.org/3";
-const TMDB_API_KEY = "e27398a0764523bfdbabdb8282397a49";
+import Constants from "expo-constants";
+
+export const TMDB_API_URL = Constants.expoConfig?.extra?.tmdbApiUrl;
+export const TMDB_API_KEY = Constants.expoConfig?.extra?.tmdbApiKey;
 
 export const searchMovies = async (query: string) => {
   try {
-    const response = await fetch(
-      `${TMDB_API_URL}/search/movie?query=${encodeURIComponent(
-        query
-      )}&api_key=${TMDB_API_KEY}`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+    const url = `${TMDB_API_URL}/search/movie?query=${encodeURIComponent(
+      query
+    )}&api_key=${TMDB_API_KEY}`;
+    console.log("🔍 TMDB URL:", url); // log the actual request
+
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("TMDB fetch failed:", response.status, errorText);
       throw new Error("Failed to fetch movies from TMDB");
     }
 

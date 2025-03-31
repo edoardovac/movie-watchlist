@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { TextInput, Button, Text, ActivityIndicator } from "react-native-paper";
-import { saveToken } from "../utils/tokenStorage";
+import { loginUser } from "../api/login";
+import Constants from "expo-constants";
+import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://192.168.213.118:3000";
+const API_URL = Constants.expoConfig?.extra?.apiUrl;
 
 const LoginScreen = () => {
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,22 +19,9 @@ const LoginScreen = () => {
     setError("");
 
     try {
-      const response = await fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      await saveToken(data.token);
-      console.log(data.token);
+      const token = await loginUser(username, password);
+      login(token);
+      console.log("Logged in with token:", token);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {

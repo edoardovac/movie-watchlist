@@ -7,6 +7,8 @@ export const addMovieToWatchlist = async (req: AuthenticatedRequest, res: Respon
   const user_id = req.user?.user_id;
   const watchlist_id = parseInt(req.params.id, 10);
 
+  console.log(`POST request to /watchlists/${watchlist_id}/movies`);
+
   const { tmdb_id, title, overview, poster_path, release_date, runtime, tagline, vote_average } =
     req.body;
 
@@ -69,6 +71,8 @@ export const removeMovieFromWatchlist = async (req: AuthenticatedRequest, res: R
   const watchlist_id = parseInt(req.params.watchlist_id, 10);
   const movie_id = parseInt(req.params.movie_id, 10);
 
+  console.log(`DELETE request to /watchlists/${watchlist_id}/movies/${movie_id}`);
+
   if (isNaN(watchlist_id) || isNaN(movie_id)) {
     return res.status(400).json({ error: 'Invalid watchlist or movie ID' });
   }
@@ -106,6 +110,8 @@ export const getMoviesInWatchlist = async (req: AuthenticatedRequest, res: Respo
   const user_id = req.user!.user_id;
   const watchlist_id = parseInt(req.params.watchlist_id, 10);
 
+  console.log(`GET request to /watchlists/${watchlist_id}/movies`);
+
   if (isNaN(watchlist_id)) {
     return res.status(400).json({ error: 'Invalid watchlist id' });
   }
@@ -141,6 +147,8 @@ export const markAsWatched = async (req: AuthenticatedRequest, res: Response) =>
   const user_id = req.user?.user_id;
   const watchlist_id = parseInt(req.params.watchlist_id, 10);
   const movie_id = parseInt(req.params.movie_id, 10);
+
+  console.log(`PATCH request to /watchlists/${watchlist_id}/movies/${movie_id}/watched`);
 
   if (isNaN(watchlist_id)) {
     return res.status(400).json({ error: 'Invalid watchlist id' });
@@ -180,6 +188,8 @@ export const markAsUnwatched = async (req: AuthenticatedRequest, res: Response) 
   const user_id = req.user?.user_id;
   const watchlist_id = parseInt(req.params.watchlist_id, 10);
   const movie_id = parseInt(req.params.movie_id, 10);
+
+  console.log(`PATCH request to /watchlists/${watchlist_id}/movies/${movie_id}/unwatched`);
 
   if (isNaN(watchlist_id)) {
     return res.status(400).json({ error: 'Invalid watchlist id' });

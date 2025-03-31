@@ -18,6 +18,12 @@ import { authenticateToken } from '../middleware/authenticate';
 
 const router = express.Router();
 
+// test connection
+router.get('/hello', (req, res) => {
+  console.log(`GET request to /hello`);
+  res.send('Hello from backend');
+});
+
 // users routes
 router.post('/users', createUser);
 router.post('/login', loginUser);

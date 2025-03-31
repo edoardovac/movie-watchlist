@@ -7,6 +7,9 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Movie } from "../types/Movie";
+import Constants from "expo-constants";
+
+const TMDB_IMAGE_BASE_URL = Constants.expoConfig?.extra?.tmdbImageBaseUrl;
 
 type Props = Pick<
   Movie,
@@ -35,7 +38,7 @@ const MovieCard = ({
       <View style={styles.card}>
         {posterPath ? (
           <Image
-            source={{ uri: `https://image.tmdb.org/t/p/w185${posterPath}` }}
+            source={{ uri: `${TMDB_IMAGE_BASE_URL}${posterPath}` }}
             style={styles.poster}
           />
         ) : (
