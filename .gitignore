@@ -1,1 +1,15 @@
 *.pdf
+
+# Docker volume folders
+docker-data/
+pgdata/
+**/pgdata/
+
+# Docker override files
+docker-compose.override.yml
+
+# Docker build cache 
+**/.docker
+
+# nested .git folders
+**/.git
