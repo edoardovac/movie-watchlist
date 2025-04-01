@@ -86,6 +86,7 @@ const FindScreen = ({
 
     try {
       await addMovieToWatchlist(token, watchlistId, selectedMovie);
+      showMessage("Movie added to watchlist.");
       setDialogVisible(false);
       setSelectedMovie(null);
     } catch (err) {

@@ -3,6 +3,7 @@ import { Snackbar } from "react-native-paper";
 
 type SnackbarContextType = {
   showMessage: (msg: string) => void;
+  hideMessage: () => void;
 };
 
 const SnackbarContext = createContext<SnackbarContextType | undefined>(
@@ -23,19 +24,27 @@ export const SnackbarProvider = ({
     setVisible(true);
   };
 
+  const hideMessage = () => setVisible(false);
+
   return (
-    <SnackbarContext.Provider value={{ showMessage }}>
+    <SnackbarContext.Provider value={{ showMessage, hideMessage }}>
       <>
         {children}
         <Snackbar
           visible={visible}
-          onDismiss={() => setVisible(false)}
+          onDismiss={hideMessage}
           duration={3000}
           style={{
             position: "absolute",
             bottom: 20,
             left: 20,
             right: 20,
+          }}
+          action={{
+            label: "Hide",
+            onPress: () => {
+              setVisible(false);
+            },
           }}
         >
           {message}

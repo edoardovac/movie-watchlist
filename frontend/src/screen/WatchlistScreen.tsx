@@ -4,7 +4,6 @@ import {
   Button,
   Dialog,
   Portal,
-  TextInput,
   FAB,
   Text,
   useTheme,
@@ -26,6 +25,7 @@ import WatchlistMoviesScreen from "./WatchlistMovieScreen";
 import { getToken } from "../utils/tokenStorage";
 import { getUserInfo } from "../api/login";
 import { useSnackbar } from "../context/SnackbarContext";
+import WatchlistModal from "../components/WatchlistModal";
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl;
 
@@ -283,27 +283,31 @@ const WatchlistScreen = () => {
         onRefresh={handleRefresh}
       />
       <FAB icon="plus" style={styles.fab} onPress={openDialog} />
+      {visible && !editingWatchlist && (
+        <WatchlistModal
+          visible={visible}
+          onDismiss={closeDialog}
+          onSubmit={handleCreateWatchlist}
+          name={name}
+          notes={notes}
+          setName={setName}
+          setNotes={setNotes}
+        />
+      )}
+      {!!editingWatchlist && (
+        <WatchlistModal
+          visible={!!editingWatchlist}
+          onDismiss={() => setEditingWatchlist(null)}
+          onSubmit={handleUpdateWatchlist}
+          name={editName}
+          notes={editNotes}
+          setName={setEditName}
+          setNotes={setEditNotes}
+          title="Edit Watchlist"
+          submitLabel="Save"
+        />
+      )}
       <Portal>
-        <Dialog visible={visible} onDismiss={closeDialog}>
-          <Dialog.Title>Create Watchlist</Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              label={"Name"}
-              value={name}
-              onChangeText={setName}
-              style={{ marginBottom: 10 }}
-            />
-            <TextInput
-              label={"Notes(optional)"}
-              value={notes}
-              onChangeText={setNotes}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={closeDialog}>Cancel</Button>
-            <Button onPress={handleCreateWatchlist}>Create</Button>
-          </Dialog.Actions>
-        </Dialog>
         <Dialog
           visible={confirmDeleteId !== null}
           onDismiss={() => setConfirmDeleteId(null)}
@@ -318,29 +322,6 @@ const WatchlistScreen = () => {
           <Dialog.Actions>
             <Button onPress={() => setConfirmDeleteId(null)}>Cancel</Button>
             <Button onPress={handleDeleteConfirmed}>Delete</Button>
-          </Dialog.Actions>
-        </Dialog>
-        <Dialog
-          visible={!!editingWatchlist}
-          onDismiss={() => setEditingWatchlist(null)}
-        >
-          <Dialog.Title>Edit Watchlist</Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              label="Name"
-              value={editName}
-              onChangeText={setEditName}
-              style={{ marginBottom: 10 }}
-            />
-            <TextInput
-              label="Notes (optional)"
-              value={editNotes}
-              onChangeText={setEditNotes}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setEditingWatchlist(null)}>Cancel</Button>
-            <Button onPress={handleUpdateWatchlist}>Save</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -364,6 +345,7 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+    zIndex: 1,
   },
   expandedMovie: {
     paddingVertical: 8,

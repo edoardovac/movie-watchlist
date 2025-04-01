@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet } from "react-native";
-import { ActivityIndicator, IconButton, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Dialog,
+  IconButton,
+  Portal,
+  Text,
+} from "react-native-paper";
 import { Watchlist } from "../types/Watchlist";
 import { Movie } from "../types/Movie";
 import {
@@ -30,6 +37,7 @@ const WatchlistMoviesScreen = ({ watchlist, onClose }: Props) => {
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("addedNewest");
   const [filterVisible, setFilterVisible] = useState(false);
+  const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const theme = useTheme();
 
   useEffect(() => {
@@ -73,15 +81,19 @@ const WatchlistMoviesScreen = ({ watchlist, onClose }: Props) => {
     }
   };
 
-  const handleDelete = async (movie: Movie) => {
+  const handleDeleteConfirmed = async () => {
+    if (!token || !movieToDelete) return;
     try {
       await removeMovieFromWatchilist(
-        token!,
+        token,
         watchlist.watchlist_id,
-        movie.movie_id!
+        movieToDelete.movie_id!
       );
-      setMovies((prev) => prev.filter((m) => m.movie_id !== movie.movie_id));
+      setMovies((prev) =>
+        prev.filter((m) => m.movie_id !== movieToDelete.movie_id)
+      );
       showMessage("Movie removed from watchlist");
+      setMovieToDelete(null);
     } catch (err) {
       console.error("Failed to remove movie:", err);
       showMessage("Failed to remove movie");
@@ -178,7 +190,7 @@ const WatchlistMoviesScreen = ({ watchlist, onClose }: Props) => {
           <MovieCard
             movie={item}
             swipeable
-            onDelete={handleDelete}
+            onDelete={() => setMovieToDelete(item)}
             onToggleWatched={handleToggleWatched}
           />
         )}
@@ -207,6 +219,25 @@ const WatchlistMoviesScreen = ({ watchlist, onClose }: Props) => {
           ) : null
         }
       />
+      <Portal>
+        <Dialog
+          visible={movieToDelete !== null}
+          onDismiss={() => setMovieToDelete(null)}
+        >
+          <Dialog.Title>Remove Movie</Dialog.Title>
+          <Dialog.Content>
+            <Text>
+              Are you sure you want to remove "
+              <Text style={{ fontWeight: "bold" }}>{movieToDelete?.title}</Text>
+              " from this watchlist?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setMovieToDelete(null)}>Cancel</Button>
+            <Button onPress={handleDeleteConfirmed}>Remove</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 };

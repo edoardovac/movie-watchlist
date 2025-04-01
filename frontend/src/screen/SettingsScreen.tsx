@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { Button, useTheme } from "react-native-paper";
+import {
+  View,
+  StyleSheet,
+  Linking,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { Button, Text, useTheme } from "react-native-paper";
 import { useAuth } from "../context/AuthContext";
 import { testBackendConnection } from "../api/system";
 import LoginScreen from "./LoginScreen";
@@ -14,11 +20,12 @@ const SettingsScreen = () => {
   const { isDark, toggleTheme } = useThemeContext();
   const [showLogin, setShowLogin] = useState(false);
   const theme = useTheme();
+  const tmdbLogo = require("../../assets/tmdb_logo.png");
 
   const testConnection = async () => {
     try {
       const result = await testBackendConnection();
-      showMessage(`Response: ${result}`);
+      showMessage(`${result}`);
     } catch (err) {
       showMessage("Failed to reach backend.");
     }
@@ -27,6 +34,10 @@ const SettingsScreen = () => {
   const resetTutorial = async () => {
     await AsyncStorage.removeItem("tutorial_seen");
     showMessage("Tutorial will show on next launch");
+  };
+
+  const openTMDB = () => {
+    Linking.openURL("https://www.themoviedb.org/");
   };
 
   if (showLogin) {
@@ -78,6 +89,18 @@ const SettingsScreen = () => {
           Log In
         </Button>
       )}
+      <View style={styles.attribution}>
+        <Text variant="bodySmall" style={styles.attributionText}>
+          This product uses the TMDB API but is not endorsed or certified by
+          TMDB.
+        </Text>
+        <TouchableOpacity onPress={openTMDB}>
+          <Text style={[styles.link, { color: theme.colors.primary }]}>
+            themoviedb.org
+          </Text>
+        </TouchableOpacity>
+        <Image source={tmdbLogo} style={styles.logo} />
+      </View>
     </View>
   );
 };
@@ -96,5 +119,25 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginTop: 40,
+  },
+  attribution: {
+    marginTop: 40,
+    alignItems: "center",
+  },
+  attributionText: {
+    textAlign: "center",
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  link: {
+    fontSize: 12,
+    textDecorationLine: "underline",
+  },
+  logo: {
+    width: 185,
+    height: 133,
+    alignSelf: "center",
+    marginTop: 20,
+    opacity: 0.6,
   },
 });
