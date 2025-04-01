@@ -1,45 +1,83 @@
 import { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Text, Button } from "react-native-paper";
-import Constants from "expo-constants";
+import { Button, useTheme } from "react-native-paper";
 import { useAuth } from "../context/AuthContext";
 import { testBackendConnection } from "../api/system";
-
-const API_URL = Constants.expoConfig?.extra?.apiUrl;
+import LoginScreen from "./LoginScreen";
+import { useSnackbar } from "../context/SnackbarContext";
+import { useThemeContext } from "../context/ThemeContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingsScreen = () => {
-  const { logout } = useAuth();
-  const [message, setMessage] = useState("");
+  const { token, logout } = useAuth();
+  const { showMessage } = useSnackbar();
+  const { isDark, toggleTheme } = useThemeContext();
+  const [showLogin, setShowLogin] = useState(false);
+  const theme = useTheme();
 
   const testConnection = async () => {
     try {
       const result = await testBackendConnection();
-      setMessage(result);
+      showMessage(`Response: ${result}`);
     } catch (err) {
-      setMessage("Failed to reach backend.");
+      showMessage("Failed to reach backend.");
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const resetTutorial = async () => {
+    await AsyncStorage.removeItem("tutorial_seen");
+    showMessage("Tutorial will show on next launch");
   };
 
+  if (showLogin) {
+    return <LoginScreen onClose={() => setShowLogin(false)} />;
+  }
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Button mode="contained" onPress={testConnection}>
         Test Backend Connection
       </Button>
-      {message.length > 0 && (
-        <Text style={styles.result}>Response: {message}</Text>
-      )}
       <Button
+        icon="theme-light-dark"
+        onPress={toggleTheme}
         mode="outlined"
-        onPress={handleLogout}
-        style={styles.logoutButton}
-        icon="logout"
+        style={{ marginTop: 20 }}
       >
-        Test Backend Connection
+        Switch to {isDark ? "Light" : "Dark"} Mode
       </Button>
+      <Button
+        icon="information-outline"
+        onPress={resetTutorial}
+        mode="outlined"
+        style={{ marginTop: 20 }}
+      >
+        Show Tutorial Again
+      </Button>
+      {token ? (
+        <Button
+          mode="outlined"
+          onPress={() => {
+            logout();
+            showMessage("Logged out successfully");
+          }}
+          style={styles.logoutButton}
+          icon="logout"
+        >
+          Log Out
+        </Button>
+      ) : (
+        <Button
+          mode="outlined"
+          onPress={() => setShowLogin(true)}
+          style={styles.logoutButton}
+          icon="login"
+        >
+          Log In
+        </Button>
+      )}
     </View>
   );
 };

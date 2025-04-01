@@ -1,9 +1,22 @@
-import { View, StyleSheet, Text } from "react-native";
-import { ActivityIndicator, Button, TextInput } from "react-native-paper";
+import { View, StyleSheet } from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  TextInput,
+  Text,
+  useTheme,
+} from "react-native-paper";
 import { searchMovies, getMovieDetails } from "../api/tmdb";
 import { FlatList } from "react-native-gesture-handler";
 import MovieCard from "../components/MovieCard";
 import { Movie } from "../types/Movie";
+import { useState } from "react";
+import { Watchlist } from "../types/Watchlist";
+import { fetchWatchlists as getWatchlists } from "../api/watchlists";
+import { useAuth } from "../context/AuthContext";
+import { addMovieToWatchlist } from "../api/movies";
+import AddToWatchlistDialog from "../components/AddToWatchlistDialog";
+import { useSnackbar } from "../context/SnackbarContext";
 
 type Props = {
   text: string;
@@ -22,6 +35,13 @@ const FindScreen = ({
   loading,
   setLoading,
 }: Props) => {
+  const { token } = useAuth();
+  const { showMessage } = useSnackbar();
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [watchlists, setWatchlists] = useState<Watchlist[]>([]);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const theme = useTheme();
+
   const handleSearch = async () => {
     setLoading(true);
     try {
@@ -42,13 +62,42 @@ const FindScreen = ({
       setResults(detailedResults);
     } catch (err) {
       console.error(err);
+      showMessage("Failed to load your watchlists.");
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchWatchlists = async () => {
+    try {
+      if (!token) throw new Error("No token available");
+      const data = await getWatchlists(token);
+
+      setWatchlists(data);
+      console.log("Fetched watchlsit", data);
+    } catch (err) {
+      console.log("Error:", err);
+      showMessage("Failed to load your watchlists.");
+    }
+  };
+
+  const handleAddMovie = async (watchlistId: number) => {
+    if (!token || !selectedMovie) return;
+
+    try {
+      await addMovieToWatchlist(token, watchlistId, selectedMovie);
+      setDialogVisible(false);
+      setSelectedMovie(null);
+    } catch (err) {
+      console.error("Failed to add movie to watchlsit", err);
+      showMessage("Failed to add movie to watchlist.");
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <TextInput
         label="Search Movie Title"
         value={text}
@@ -84,15 +133,24 @@ const FindScreen = ({
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <MovieCard
-            title={item.title}
-            posterPath={item.poster_path}
-            releaseDate={item.release_date}
-            voteAverage={item.vote_average}
-            overview={item.overview}
-            runtime={item.runtime}
-            tagline={item.tagline}
+            movie={item}
+            onAddToWatchlist={(movie) => {
+              setSelectedMovie(movie);
+              setDialogVisible(true);
+              fetchWatchlists();
+            }}
           />
         )}
+      />
+      <AddToWatchlistDialog
+        visible={dialogVisible}
+        onDismiss={() => {
+          setDialogVisible(false);
+          setSelectedMovie(null);
+        }}
+        watchlists={watchlists}
+        selectedMovie={selectedMovie}
+        onSelectWatchlist={handleAddMovie}
       />
     </View>
   );

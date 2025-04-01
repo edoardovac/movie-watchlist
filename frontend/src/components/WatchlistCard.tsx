@@ -1,19 +1,21 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { useRef } from "react";
 import { Watchlist } from "../types/Watchlist";
-import { IconButton } from "react-native-paper";
+import { IconButton, useTheme, Text } from "react-native-paper";
 import Swipeable, {
   SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
 
 type Props = {
   watchlist: Watchlist;
+  onPress?: () => void;
   onDelete: (id: number, name: string) => void;
   onEdit: (watchlist: Watchlist) => void;
 };
 
-const WatchlistCard = ({ watchlist, onDelete, onEdit }: Props) => {
+const WatchlistCard = ({ watchlist, onPress, onDelete, onEdit }: Props) => {
   const swipeableRef = useRef<SwipeableMethods | null>(null);
+  const theme = useTheme();
 
   const handleEditPress = () => {
     swipeableRef.current?.close();
@@ -47,16 +49,35 @@ const WatchlistCard = ({ watchlist, onDelete, onEdit }: Props) => {
   };
 
   return (
-    <Swipeable
-      ref={swipeableRef}
-      renderRightActions={renderRightActions}
-      renderLeftActions={renderLeftActions}
-    >
-      <View style={styles.card}>
-        <Text style={styles.title}>{watchlist.name}</Text>
-        {watchlist.notes && <Text style={styles.notes}>{watchlist.notes}</Text>}
-      </View>
-    </Swipeable>
+    <TouchableWithoutFeedback onPress={onPress}>
+      <Swipeable
+        ref={swipeableRef}
+        renderRightActions={renderRightActions}
+        renderLeftActions={renderLeftActions}
+        friction={2}
+      >
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor:
+                theme.colors.elevation?.level1 || theme.colors.surface,
+            },
+          ]}
+        >
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+            {watchlist.name}
+          </Text>
+          {watchlist.notes && (
+            <Text
+              style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}
+            >
+              {watchlist.notes}
+            </Text>
+          )}
+        </View>
+      </Swipeable>
+    </TouchableWithoutFeedback>
   );
 };
 

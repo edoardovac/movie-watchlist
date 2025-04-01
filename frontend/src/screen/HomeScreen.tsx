@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { StyleSheet } from "react-native";
-import { BottomNavigation } from "react-native-paper";
+import { BottomNavigation, useTheme } from "react-native-paper";
 import FindScreen from "./FindScreen";
 import WatchlistScreen from "./WatchlistScreen";
 import { Movie } from "../types/Movie";
 
 const HomeScreen = () => {
+  const theme = useTheme();
   const [index, setIndex] = useState(0);
   const [text, setText] = useState("");
   const [results, setResults] = useState<Movie[]>([]);

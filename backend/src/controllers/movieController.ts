@@ -128,7 +128,7 @@ export const getMoviesInWatchlist = async (req: AuthenticatedRequest, res: Respo
     }
 
     const result = await pool.query(
-      `SELECT m.movie_id, m.tmdb_id, m.title, m.overview, m.poster_path, wm.watched
+      `SELECT m.movie_id, m.tmdb_id, m.title, m.overview, m.poster_path, m.release_date, m.runtime, m.tagline, m.vote_average, wm.watched, wm.added_at
        FROM watchlist_movies wm
        JOIN movies m ON wm.movie_id = m.movie_id
        WHERE wm.watchlist_id = $1`,

@@ -1,5 +1,12 @@
 import express from 'express';
-import { createUser, getMe, loginUser } from '../controllers/userController';
+import {
+  createUser,
+  deleteUser,
+  deleteUserNoAuth,
+  getMe,
+  listUsers,
+  loginUser,
+} from '../controllers/userController';
 import {
   addMovieToWatchlist,
   getMoviesInWatchlist,
@@ -28,6 +35,9 @@ router.get('/hello', (req, res) => {
 router.post('/users', createUser);
 router.post('/login', loginUser);
 router.get('/me', authenticateToken, getMe);
+router.delete('/users', authenticateToken, deleteUser);
+router.get('/users', listUsers);
+router.delete('/users/:id', deleteUserNoAuth);
 
 // watchlists routes
 router.post('/watchlists', authenticateToken, createWatchlist);
